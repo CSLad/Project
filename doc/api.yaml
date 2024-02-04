@@ -9,10 +9,10 @@ paths:
     post:
       tags:
         - Authentication
-      summary: User Login (Simplified)
+      summary: User Login
       operationId: doLogin
       requestBody:
-        description: Simplified login details
+        description: Login details
         required: true
         content:
           application/json:
