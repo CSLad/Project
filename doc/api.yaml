@@ -1,0 +1,310 @@
+openapi: 3.0.0
+info:
+  title: WasaPhoto
+  version: 1.0.0
+  description: API documentation for WASAphoto
+
+paths:
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: User Login (Simplified)
+      operationId: doLogin
+      requestBody:
+        description: Simplified login details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+        '401':
+          description: Unauthorized
+
+  /user/username:
+    put:
+      tags:
+        - User Management
+      summary: Set User Username
+      operationId: setMyUserName
+      requestBody:
+        description: New username for the user
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newUsername:
+                  type: string
+      responses:
+        '200':
+          description: Username updated successfully
+        '400':
+          description: Bad request
+
+  /user/photo:
+    post:
+      tags:
+        - User Content
+      summary: Upload Photo
+      operationId: uploadPhoto
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Photo uploaded successfully
+        '400':
+          description: Bad request
+
+  /user/follow:
+    post:
+      tags:
+        - Social Interaction
+      summary: Follow User
+      operationId: followUser
+      requestBody:
+        description: ID of the user to follow
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+      responses:
+        '200':
+          description: User followed successfully
+        '404':
+          description: User not found
+
+  /user/unfollow:
+    post:
+      tags:
+        - Social Interaction
+      summary: Unfollow User
+      operationId: unfollowUser
+      requestBody:
+        description: ID of the user to unfollow
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+      responses:
+        '200':
+          description: User unfollowed successfully
+        '404':
+          description: User not found
+
+  /user/ban:
+    post:
+      tags:
+        - Moderation
+      summary: Ban User
+      operationId: banUser
+      requestBody:
+        description: ID of the user to ban
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+      responses:
+        '200':
+          description: User banned successfully
+        '404':
+          description: User not found
+
+  /user/unban:
+    post:
+      tags:
+        - Moderation
+      summary: Unban User
+      operationId: unbanUser
+      requestBody:
+        description: ID of the user to unban
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+      responses:
+        '200':
+          description: User unbanned successfully
+        '404':
+          description: User not found
+
+  /user/profile:
+    get:
+      tags:
+        - User Information
+      summary: Get User Profile
+      operationId: getUserProfile
+      parameters:
+        - name: userId
+          in: query
+          description: ID of the user to retrieve profile
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User profile retrieved successfully
+        '404':
+          description: User not found
+
+  /user/stream:
+    get:
+      tags:
+        - User Content
+      summary: Get User Stream
+      operationId: getMyStream
+      parameters:
+        - name: userId
+          in: query
+          description: ID of the user to retrieve stream
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User stream retrieved successfully
+        '404':
+          description: User not found
+
+  /photo/like:
+    post:
+      tags:
+        - Social Interaction
+      summary: Like Photo
+      operationId: likePhoto
+      requestBody:
+        description: ID of the photo to like
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photoId:
+                  type: integer
+      responses:
+        '200':
+          description: Photo liked successfully
+        '404':
+          description: Photo not found
+
+  /photo/unlike:
+    post:
+      tags:
+        - Social Interaction
+      summary: Unlike Photo
+      operationId: unlikePhoto
+      requestBody:
+        description: ID of the photo to unlike
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photoId:
+                  type: integer
+      responses:
+        '200':
+          description: Photo unliked successfully
+        '404':
+          description: Photo not found
+
+  /photo/comment:
+    post:
+      tags:
+        - Social Interaction
+      summary: Comment on Photo
+      operationId: commentPhoto
+      requestBody:
+        description: ID of the photo to comment on
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photoId:
+                  type: integer
+                comment:
+                  type: string
+      responses:
+        '201':
+          description: Comment added successfully
+        '404':
+          description: Photo not found
+
+  /photo/uncomment:
+    post:
+      tags:
+        - Social Interaction
+      summary: Remove Comment from Photo
+      operationId: uncommentPhoto
+      requestBody:
+        description: ID of the photo to remove comment from
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photoId:
+                  type: integer
+                commentId:
+                  type: integer
+      responses:
+        '200':
+          description: Comment removed successfully
+        '404':
+          description: Photo or Comment not found
+
+  /photo/delete:
+    delete:
+      tags:
+        - User Content
+      summary: Delete Photo
+      operationId: deletePhoto
+      parameters:
+        - name: photoId
+          in: query
+          description: ID of the photo to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Photo deleted successfully
+        '404':
+          description: Photo not found
+
