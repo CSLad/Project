@@ -4,12 +4,29 @@ info:
   version: 1.0.0
   description: API documentation for WASAphoto
 
+tags:
+  - name: auth
+    description: Authentication operations
+  - name: user
+    description: User operations
+  - name: image
+    description: Image operations
+  - name: like
+    description: Liking operations
+  - name: comment
+    description: Comment operations
+  - name: follow
+    description: Follow operations
+
 paths:
-  /login:
+  /session:
     post:
-      tags:
-        - Authentication
+      tags: ['auth']
       summary: User Login
+      description: |
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
       operationId: doLogin
       requestBody:
         description: Login details
@@ -17,21 +34,37 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
+              $ref: "#/components/schemas/Username"
       responses:
         '200':
-          description: Successful login
-        '401':
-          description: Unauthorized
+          description: Successful login into existing account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Username"
+                  
+        '201':
+          description: Successful sign up and login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Username"
+        '400':
+          description: Bad request
 
-  /user/username:
-    put:
-      tags:
-        - User Management
+  /users/{username}:
+    parameters:
+    - name: username
+      in: path
+      required: true
+      description: this is the username
+      schema:
+        $ref: "#/components/schemas/Username"
+    post:
+      tags: ["user"]
       summary: Set User Username
+      description: |
+        Allows the user to change/set their username
       operationId: setMyUserName
       requestBody:
         description: New username for the user
@@ -39,21 +72,45 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                newUsername:
-                  type: string
+              $ref: "#/components/schemas/Username"
       responses:
         '200':
           description: Username updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Username"
         '400':
-          description: Bad request
+          description: Bad request 
+    get:
+      tags: ['user']
+      summary: Get User Profile
+      description: |
+        Get the information of a users profile. His photos, and other details.
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Username"
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/imageUrl"
+        '404':
+          description: User not found
 
-  /user/photo:
+  /users/{username}/image:
     post:
-      tags:
-        - User Content
+      tags: ['user']
       summary: Upload Photo
+      description: |
+        If the photo is of the correct datatype
+        (jpg, png, jpeg etc.) upload the photo
       operationId: uploadPhoto
       requestBody:
         required: true
@@ -62,20 +119,29 @@ paths:
             schema:
               type: object
               properties:
-                photo:
-                  type: string
-                  format: binary
+                imageUrl:
+                  $ref: "#/components/schemas/imageUrl"
       responses:
         '201':
           description: Photo uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Username:
+                    $ref: "#/components/schemas/Username"                    
+                  imageUrl:
+                    $ref: "#/components/schemas/imageUrl"
         '400':
           description: Bad request
 
-  /user/follow:
+  /users/{username}/follow:
     post:
-      tags:
-        - Social Interaction
+      tags: ['follow'] 
       summary: Follow User
+      description: |
+        Post function to follow a user
       operationId: followUser
       requestBody:
         description: ID of the user to follow
@@ -85,19 +151,30 @@ paths:
             schema:
               type: object
               properties:
-                userId:
-                  type: integer
+                Username:
+                  $ref: "#/components/schemas/Username"
       responses:
         '200':
-          description: User followed successfully
+          description: | 
+            User followed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Username:
+                    $ref: "#/components/schemas/Username"
+                  followedUsername:
+                    $ref: "#/components/schemas/Username"
         '404':
           description: User not found
 
-  /user/unfollow:
+  /user/{username}/unfollow:
     post:
-      tags:
-        - Social Interaction
+      tags: ['follow']
       summary: Unfollow User
+      description: |
+        Unfollow the desired user
       operationId: unfollowUser
       requestBody:
         description: ID of the user to unfollow
@@ -106,125 +183,145 @@ paths:
           application/json:
             schema:
               type: object
-              properties:
-                userId:
-                  type: integer
+              properties:  
+                Username:
+                  $ref: "#/components/schemas/Username"
       responses:
         '200':
           description: User unfollowed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    $ref: "#/components/schemas/Username"
+                  unfollowedUsername:
+                    $ref: "#/components/schemas/Username"
         '404':
           description: User not found
 
-  /user/ban:
-    post:
-      tags:
-        - Moderation
+  /users/{username}/ban:
+    put:
+      tags: ['user']
       summary: Ban User
+      description: |
+        Ban a user from viewing another users images and visa vers
       operationId: banUser
       requestBody:
-        description: ID of the user to ban
+        description: |
+          username of the user to ban
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                userId:
-                  type: integer
+                Username:
+                  $ref: "#/components/schemas/Username"
       responses:
         '200':
           description: User banned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Username:
+                    $ref: "#/components/schemas/Username"
+                  bannedUsername:
+                    $ref: "#/components/schemas/Username"
         '404':
           description: User not found
 
-  /user/unban:
+  /users/{username}/unban:
     post:
-      tags:
-        - Moderation
+      tags: ["user"]
       summary: Unban User
+      description: |
+        Unban a user to view his images and allow him to view the users images
       operationId: unbanUser
       requestBody:
-        description: ID of the user to unban
+        description: username of the user to unban
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                userId:
-                  type: integer
+                Username:
+                  $ref: "#/components/schemas/Username"
       responses:
         '200':
           description: User unbanned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Username:
+                    $ref: "#/components/schemas/Username"
+                  UnbannedUsername:
+                    $ref: "#/components/schemas/Username"
         '404':
           description: User not found
 
-  /user/profile:
+  /users/{username}/stream:
     get:
-      tags:
-        - User Information
-      summary: Get User Profile
-      operationId: getUserProfile
-      parameters:
-        - name: userId
-          in: query
-          description: ID of the user to retrieve profile
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: User profile retrieved successfully
-        '404':
-          description: User not found
-
-  /user/stream:
-    get:
-      tags:
-        - User Content
+      tags: ['user']
       summary: Get User Stream
+      description: |
+        Get the stream that is show to a user
       operationId: getMyStream
-      parameters:
-        - name: userId
-          in: query
-          description: ID of the user to retrieve stream
-          required: true
-          schema:
-            type: integer
       responses:
         '200':
           description: User stream retrieved successfully
+          content:
+            application/json:
+              schema:
+                description: Stream of photos
+                type: object
+                properties:
+                  username:
+                    $ref: "#/components/schemas/Username"
+                  images:
+                    type: array
+                    description: "list of images"
+                    items:
+                      $ref: "#/components/schemas/imageUrl"
         '404':
           description: User not found
 
-  /photo/like:
+  /images/{imageurl}/like:
     post:
-      tags:
-        - Social Interaction
-      summary: Like Photo
+      tags: ['image']
+      summary: Like Image
+      description: |
+        Like a specific image
       operationId: likePhoto
       requestBody:
-        description: ID of the photo to like
+        description: url of the photo to like
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                photoId:
-                  type: integer
+                imageUrl:
+                  $ref: "#/components/schemas/imageUrl"
       responses:
         '200':
           description: Photo liked successfully
         '404':
           description: Photo not found
 
-  /photo/unlike:
+  /images/{imageurl}/unlike:
     post:
-      tags:
-        - Social Interaction
+      tags: ['image']
       summary: Unlike Photo
       operationId: unlikePhoto
+      description: |
+        Remove the like from an image
       requestBody:
         description: ID of the photo to unlike
         required: true
@@ -233,18 +330,17 @@ paths:
             schema:
               type: object
               properties:
-                photoId:
-                  type: integer
+                 imageUrl:
+                  $ref: "#/components/schemas/imageUrl"
       responses:
         '200':
           description: Photo unliked successfully
         '404':
           description: Photo not found
 
-  /photo/comment:
-    post:
-      tags:
-        - Social Interaction
+  /images/{imageurl}/comment:
+    put:
+      tags: ['image']
       summary: Comment on Photo
       operationId: commentPhoto
       requestBody:
@@ -256,19 +352,21 @@ paths:
               type: object
               properties:
                 photoId:
-                  type: integer
+                  $ref: "#/components/schemas/imageUrl"
                 comment:
                   type: string
+                  minLength: 1
+                  maxLength: 140
+                  pattern: 'ˆ.*?$'
       responses:
         '201':
           description: Comment added successfully
         '404':
           description: Photo not found
 
-  /photo/uncomment:
+  /images/{imageurl}/uncomment:
     post:
-      tags:
-        - Social Interaction
+      tags: ['image']
       summary: Remove Comment from Photo
       operationId: uncommentPhoto
       requestBody:
@@ -279,32 +377,97 @@ paths:
             schema:
               type: object
               properties:
-                photoId:
-                  type: integer
-                commentId:
-                  type: integer
+                imageUrl:
+                  $ref: "#/components/schemas/imageUrl"
+                comment:
+                  type: string
+                  minLength: 1
+                  maxLength: 140
+                  pattern: 'ˆ.*?$'
       responses:
         '200':
           description: Comment removed successfully
         '404':
           description: Photo or Comment not found
 
-  /photo/delete:
+  /images/{imageurl}/delete:
     delete:
-      tags:
-        - User Content
+      tags: ['image']
       summary: Delete Photo
+      description: |
+        Remove a posted photo
       operationId: deletePhoto
       parameters:
-        - name: photoId
+        - name: imageurl
           in: query
           description: ID of the photo to delete
           required: true
           schema:
-            type: integer
+            $ref: "#/components/schemas/imageUrl"
       responses:
         '200':
           description: Photo deleted successfully
         '404':
           description: Photo not found
 
+components:
+  schemas:
+    Username:
+      description: |
+        Unique username of a user.
+      type: string
+      example: illuha
+      pattern: 'ˆ.*?$'
+      minLength: 3
+      maxLength: 16
+    
+    Photo:
+      description: |
+        Photo wtih information related to the photo.
+      type: object
+      properties:
+        imageUrl:
+          $ref: "#/components/schemas/imageUrl"
+        Username:
+          description: |
+           Username of the person who posted the image
+          $ref: "#/components/schemas/Username"
+        date:
+          description: |
+            Date and time at which the image was posted
+          type: string
+          format: date
+          example: "2001-09-01"
+          pattern:  "%1$tY-%1$tm-%1$td"
+          minLength: 10
+          maxLength: 10
+        likes:
+          description: |
+            the sum of the likes that the image recieved
+          type: integer
+          minimum: 0
+          example: 10
+        comments:
+          description: |
+            the sum of the comments that the post recieved
+          type: integer
+          minimum: 0 
+          example: 10
+    imageUrl:
+          description: |
+            Url of the image that has been posted
+          type: string
+          minLength: 8
+          maxLength: 10
+          pattern: "^[A-Za-z0-9._%+-]+[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+          example: https://static.semrush.com/blog/uploads/media/c5/d8/c5d899c34268c5bde3f08dfc7f98eb0d/original.png
+
+  securitySchemes:
+    UserAuth:
+      description: |
+        required security measure
+      type: http
+      scheme: bearer
+
+security:
+  - UserAuth: []
