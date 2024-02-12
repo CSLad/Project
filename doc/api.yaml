@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: WasaPhoto
-  version: 1.0.0
+  version: 1.0.7
   description: API documentation for WASAphoto
 
 tags:
@@ -104,7 +104,6 @@ paths:
                     maxItems: 10
         '404':
           description: User not found
-
 
   /users/{username}/follow:
     parameters:
@@ -397,7 +396,7 @@ paths:
       description: this is the id of the image
       schema:
         $ref: "#/components/schemas/imageUrl"
-    post:
+    put:
       tags: ['image']
       summary: Like Image
       description: |
