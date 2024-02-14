@@ -56,7 +56,7 @@ paths:
       description: this is the username
       schema:
         $ref: "#/components/schemas/Username"
-    post:
+    put:
       tags: ["user"]
       summary: Set User Username
       description: |
@@ -113,7 +113,7 @@ paths:
       description: this is the username
       schema:
         $ref: "#/components/schemas/Username"
-    post:
+    put:
       tags: ['follow'] 
       summary: Follow User
       description: |
@@ -148,16 +148,7 @@ paths:
                     $ref: "#/components/schemas/Username"
         '404':
           description: User not found
-
-  /user/{username}/unfollow:
-    parameters:
-    - name: username
-      in: path
-      required: true
-      description: this is the username
-      schema:
-        $ref: "#/components/schemas/Username"
-    post:
+    delete:
       tags: ['follow']
       summary: Unfollow User
       description: |
@@ -235,16 +226,7 @@ paths:
                     $ref: "#/components/schemas/Username"
         '404':
           description: User not found
-
-  /users/{username}/unban:
-    parameters:
-    - name: username
-      in: path
-      required: true
-      description: this is the username
-      schema:
-        $ref: "#/components/schemas/Username"
-    post:
+    delete:
       tags: ["user"]
       summary: Unban User
       description: |
@@ -328,7 +310,7 @@ paths:
       description: |
         If the photo is of the correct datatype
         (jpg, png, jpeg etc.) upload the photo
-      operationId: uploadPhoto
+      operationId: uploadImage
       requestBody:
         required: true
         content:
@@ -336,10 +318,8 @@ paths:
             schema:
               type: object
               description: |
-                the id of an image and the user that posted it
+                The user that posted the image
               properties:
-                imageUrl:
-                  $ref: "#/components/schemas/imageUrl"
                 Username:
                   $ref: "#/components/schemas/Username"
       responses:
@@ -430,16 +410,7 @@ paths:
                     $ref: "#/components/schemas/imageUrl"
         '404':
           description: Photo not found
-
-  /images/{imageurl}/unlike:
-    parameters:
-    - name: imageurl
-      in: path
-      required: true
-      description: this is the id of the image
-      schema:
-        $ref: "#/components/schemas/imageUrl"
-    post:
+    delete:
       tags: ['image']
       summary: Unlike Photo
       operationId: unlikePhoto
@@ -486,7 +457,7 @@ paths:
       summary: Comment on Photo
       description: |
         inserting a comment under an image
-      operationId: commentPhoto
+      operationId: addComment
       requestBody:
         description: ID of the photo to comment on
         required: true
@@ -523,21 +494,12 @@ paths:
                     $ref: "#/components/schemas/imageUrl"
         '404':
           description: Photo not found
-
-  /images/{imageurl}/uncomment:
-    parameters:
-    - name: imageurl
-      in: path
-      required: true
-      description: this is the id of the image
-      schema:
-        $ref: "#/components/schemas/imageUrl"
-    post:
+    delete:
       tags: ['image']
       summary: Remove Comment from Photo
       description: |
         removing a comment under an image
-      operationId: uncommentPhoto
+      operationId: removePhoto
       requestBody:
         description: ID of the photo to remove comment from
         required: true

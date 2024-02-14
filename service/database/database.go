@@ -40,6 +40,22 @@ import (
 type AppDatabase interface {
 	GetName() (string, error)
 	SetName(name string) error
+	CheckUsername(username string) (bool, error)
+	AddUser(username string) error
+	UpdateUsername(oldUsername, newUsername string) error
+	GetUser(username string) (User, error)
+	FollowUsername(username, followingUsername string) error
+	UnfollowUsername(username, unfollowingusername string) error
+	BanUsername(username, banusername string) error
+	UnbanUsername(username, unbanusername string) error
+	GetStream(username string) ([]Image, error)
+	InsertImage(imageURL, username string) error
+	RemoveImage(imageURL string) error
+	AddLike(imageURL string) error
+	RemoveLike(imageURL string) error
+	AddComment(imageURL, comment string) error
+	RemoveComment(imageURL, commentToRemove string) error
+	GetImage(imageURL string) (Image, error)
 
 	Ping() error
 }
@@ -51,21 +67,47 @@ type appdbimpl struct {
 // New returns a new instance of AppDatabase based on the SQLite connection `db`.
 // `db` is required - an error will be returned if `db` is `nil`.
 func New(db *sql.DB) (AppDatabase, error) {
+	fmt.Println("Starting function NEW")
 	if db == nil {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
-
+	fmt.Println("db is good")
 	// Check if table exists. If not, the database is empty, and we need to create the structure
 	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
+	//_, _ = db.Exec("DROP TABLE IF EXISTS Images;")
+	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='Users';`).Scan(&tableName)
+	fmt.Println(err)
 	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE example_table (id INTEGER NOT NULL PRIMARY KEY, name TEXT);`
+		fmt.Println("We got here now we making the tbl")
+		sqlStmt := `CREATE TABLE Users (
+						username TEXT PRIMARY KEY,
+						following TEXT,
+						banned TEXT
+					);`
+		Z, err := db.Exec(sqlStmt)
+		fmt.Println(Z)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
+	}
+	fmt.Println("Table users is all gewd")
+	var tableImagesName string
+	errs := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='Images';`).Scan(&tableImagesName)
+	fmt.Println(errs)
+	if errors.Is(errs, sql.ErrNoRows) {
+		sqlStmt := `CREATE TABLE IF NOT EXISTS Images (
+						imageurl TEXT PRIMARY KEY,
+						username TEXT,
+						likes INTEGER,
+						comments TEXT,
+						created_at DATETIME
+					);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
 		}
 	}
-
+	fmt.Println("Table Images is also gewd")
 	return &appdbimpl{
 		c: db,
 	}, nil
