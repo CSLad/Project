@@ -1,0 +1,160 @@
+openapi: 3.0.0
+info:
+  title: WasaPhoto
+  version: 1.1.0
+  description: Comprehensive API documentation for WasaPhoto, an Instagram-like web application.
+
+tags:
+  - name: auth
+    description: User authentication and session management
+  - name: user
+    description: Operations related to user profiles and management
+  - name: image
+    description: Image uploading, viewing, and management
+  - name: follow
+    description: Managing follower relationships
+
+paths:
+  /session:
+    post:
+      tags: ['auth']
+      summary: User Login/Registration
+      description: >
+        Log in a user, or create a new user if it does not exist, returning a unique identifier.
+      operationId: userLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        '201':
+          description: User created and logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        '400':
+          description: Invalid input data
+
+  /users/{username}:
+    parameters:
+      - name: username
+        in: path
+        required: true
+        description: Unique username of the user
+        schema:
+          type: string
+    put:
+      tags: ["user"]
+      summary: Update Username
+      description: Update or change a user's username
+      operationId: updateUsername
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsernameUpdateRequest"
+      responses:
+        '200':
+          description: Username updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Username"
+        '400':
+          description: Invalid request data
+    get:
+      tags: ['user']
+      summary: Get User Profile
+      description: Retrieve the profile information and recent photos of a specific user
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        '404':
+          description: User not found
+
+  /users/{username}/follow:
+    post:
+      tags: ['follow']
+      summary: Follow a user
+      operationId: followUser
+      responses:
+        '200':
+          description: Successfully followed the user
+        '400':
+          description: Bad request
+        '404':
+          description: User not found
+    delete:
+      tags: ['follow']
+      summary: Unfollow a user
+      operationId: unfollowUser
+      responses:
+        '200':
+          description: Successfully unfollowed the user
+        '400':
+          description: Bad request
+        '404':
+          description: User not found
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Desired or existing username
+      required: [username]
+
+    LoginResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique identifier of the user
+
+    UsernameUpdateRequest:
+      type: object
+      properties:
+        newUsername:
+          type: string
+      required: [newUsername]
+
+    Username:
+      type: object
+      properties:
+        username:
+          type: string
+
+    UserProfile:
+      type: object
+      properties:
+        username:
+          type: string
+        images:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImageUrl"
+
+    ImageUrl:
+      type: string
+      format: uri
+      description: URL pointing to an image hosted on the server
+
+security:
+  - UserAuth: []
