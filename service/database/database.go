@@ -34,13 +34,28 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
+	"os"
 )
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	GetName() (string, error)
-	SetName(name string) error
-
+	CheckUsername(username string) (bool, error)
+	AddUser(username string) error
+	UpdateUsername(oldUsername, newUsername string) error
+	GetUser(username string) (User, error)
+	FollowUsername(username, followingUsername string) error
+	UnfollowUsername(username, unfollowingusername string) error
+	BanUsername(username, banusername string) error
+	UnbanUsername(username, unbanusername string) error
+	GetStream(username string) ([]Image, error)
+	InsertImage(imageURL, username string) error
+	RemoveImage(imageURL string) error
+	AddLike(imageURL string) error
+	RemoveLike(imageURL string) error
+	AddComment(imageURL, comment string) error
+	RemoveComment(imageURL, commentToRemove string) error
+	GetImage(imageURL string) (Image, error)
 	Ping() error
 }
 
@@ -55,11 +70,39 @@ func New(db *sql.DB) (AppDatabase, error) {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
 
-	// Check if table exists. If not, the database is empty, and we need to create the structure
+	logger := logrus.New()
+	logger.SetOutput(os.Stdout)
+
+	logger.Infof("Loading Table Users")
+
 	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
+	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='Users';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE example_table (id INTEGER NOT NULL PRIMARY KEY, name TEXT);`
+		logger.Infof("No TABLE Users, Initializing")
+		sqlStmt := `CREATE TABLE Users (
+						username TEXT PRIMARY KEY,
+						following TEXT,
+						banned TEXT
+					);`
+		_, err := db.Exec(sqlStmt)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
+	}
+
+	logger.Infof("Loading Table Images")
+
+	var tableImagesName string
+	errs := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='Images';`).Scan(&tableImagesName)
+	if errors.Is(errs, sql.ErrNoRows) {
+		logger.Infof("No TABLE Images, Initializing")
+		sqlStmt := `CREATE TABLE Images (
+						imageurl TEXT PRIMARY KEY,
+						username TEXT,
+						likes INTEGER,
+						comments TEXT,
+						created_at DATETIME
+					);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
