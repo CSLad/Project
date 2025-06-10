@@ -25,10 +25,14 @@
 				</div>
 			</div>
 
-			<div>
+			<div class="comments-section">
 				<strong>Comments:</strong>
 					<ul class="comment-list">
-							<li v-for="(comment, idx) in image.comments.split('~')" :key="idx">{{ comment }}</li>
+							<li
+									v-for="(comment, idx) in image.comments.split('~')"
+									:key="idx"
+									class="comment-item"
+							>{{ comment }}</li>
 					</ul>
 				<input
 						v-model="newComments[image.id]"
@@ -36,7 +40,7 @@
 						placeholder="Write a comment"
 						@keyup.enter="submitComment(image.id)"
 				/>
-            </div>
+			</div>
 
 		</div>
 	  </div>
@@ -185,10 +189,23 @@ margin-top: 2rem;
 font-style: italic;
 }
 
+.comments-section {
+  margin-top: 0.5rem;
+}
+
+.comment-item {
+  background: #f7f7f7;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.3rem;
+}
+
 .comment-input {
   margin-top: 0.5rem;
   width: 100%;
   padding: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 .comment-list {
   margin: 0.3rem 0 0 1rem;
