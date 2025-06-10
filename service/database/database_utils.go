@@ -25,7 +25,6 @@ func (db *appdbimpl) CheckUsername(username string) (bool, error) {
 	var exists bool
 	query := "SELECT EXISTS(SELECT 1 FROM Users WHERE username = ?)"
 	err := db.c.QueryRow(query, username).Scan(&exists)
-	fmt.Print(exists)
 	return exists, err
 }
 
@@ -43,7 +42,6 @@ func (db *appdbimpl) UpdateUsername(oldUsername, newUsername string) error {
 
 	// Step 1: Update the username in the Users table
 	_, err = tx.Exec("UPDATE Users SET username = ? WHERE username = ?", newUsername, oldUsername)
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}
@@ -119,7 +117,6 @@ func (db *appdbimpl) FollowUsername(username, followingusername string) error {
 		following += ","
 	}
 	following += followingusername
-	fmt.Println(following)
 	// Update the 'following' column for the user
 	_, err = db.c.Exec("UPDATE Users SET following = ? WHERE username = ?", following, username)
 	if err != nil {

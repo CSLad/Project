@@ -18,24 +18,27 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	// Check if the username exists
 	exists, _ := rt.db.CheckUsername(requestBody.Username)
 
 	if exists {
-		// Username already exists, return 200 OK
-		_, _ = w.Write([]byte("Successful login into existing account"))
 		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"Username": requestBody.Username,
+			"Message":  "Successful login into existing account",
+		})
 		return
 	}
 
 	if err := rt.db.AddUser(requestBody.Username); err != nil {
-		// Error adding user, return internal server error
 		http.Error(w, "Failed to add user", http.StatusInternalServerError)
 		return
 	}
 
-	_, _ = w.Write([]byte("Successful sign up and login"))
 	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(map[string]string{
+		"Username": requestBody.Username,
+		"Message":  "Successful sign up and login",
+	})
 }
 
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
