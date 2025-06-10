@@ -5,6 +5,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"encoding/json"
+	"net/url"
+	"fmt"
 )
 
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
@@ -198,8 +200,18 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	imageURL := ps.ByName("imageurl")
+	imageURLParam := ps.ByName("imageurl")
+	fmt.Println(imageURLParam)
+	imageURL, err := url.QueryUnescape(imageURLParam)
+	
+	if err != nil {
+		ctx.Logger.WithError(err).Error("Invalid image URL")
+		http.Error(w, "Invalid image URL", http.StatusBadRequest)
+		return
+	}
+
 	if err := rt.db.AddLike(imageURL); err != nil {
+		ctx.Logger.WithError(err).Error("Failed to like the image")
 		http.Error(w, "Failed to add like to the image", http.StatusInternalServerError)
 		return
 	}

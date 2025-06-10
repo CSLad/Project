@@ -68,14 +68,16 @@ const fetchStream = async () => {
 
 const likeImage = async (imageurl) => {
   try {
-    await axios.put(`/images/${encodeURIComponent(imageurl)}/like`)
-    // Optimistically update likes locally
+    const encodedURL = encodeURIComponent(imageurl)
+	console.log('Encoded URL:', encodedURL)
+    await axios.put(`/images/${encodedURL}/like`)
     const img = images.value.find(img => img.imageurl === imageurl)
     if (img) img.likes += 1
   } catch (err) {
     console.error('Failed to like image:', err)
   }
 }
+
 
 
 onMounted(() => {

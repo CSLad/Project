@@ -313,7 +313,6 @@ func (db *appdbimpl) RemoveImage(imageURL string) error {
 }
 
 func (db *appdbimpl) AddLike(imageURL string) error {
-	// Execute the UPDATE query to increment the number of likes for the corresponding image URL
 	_, err := db.c.Exec("UPDATE Images SET likes = likes + 1 WHERE imageurl = ?", imageURL)
 	if err != nil {
 		return err
