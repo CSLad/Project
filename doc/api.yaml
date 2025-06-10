@@ -296,14 +296,7 @@ paths:
         '404':
           description: User not found
 
-  /images/{imageurl}:
-    parameters:
-    - name: imageurl
-      in: path
-      required: true
-      description: this is the id of the image
-      schema:
-        $ref: "#/components/schemas/imageUrl"
+  /images:
     post:
       tags: ['image']
       summary: Upload Photo
@@ -322,6 +315,8 @@ paths:
               properties:
                 Username:
                   $ref: "#/components/schemas/Username"
+                imageUrl:
+                  $ref: "#/components/schemas/imageUrl"
       responses:
         '200':
           description: Photo uploaded successfully
@@ -333,9 +328,9 @@ paths:
                   the id of the user that posted, and the id of the photo
                 properties:
                   Username:
-                    $ref: "#/components/schemas/Username"                    
-                  imageUrl:
-                    $ref: "#/components/schemas/imageUrl"
+                    $ref: "#/components/schemas/Username"
+                  imageId:
+                    $ref: "#/components/schemas/imageId"
         '400':
           description: Bad request
     delete:
@@ -345,12 +340,12 @@ paths:
         Remove a posted photo
       operationId: deletePhoto
       parameters:
-        - name: imageurl
-          in: query
+        - name: imageid
+          in: path
           description: ID of the photo to delete
           required: true
           schema:
-            $ref: "#/components/schemas/imageUrl"
+            $ref: "#/components/schemas/imageId"
       responses:
         '200':
           description: Photo deleted successfully
@@ -362,20 +357,20 @@ paths:
                   the id of the user who deleted the photo, and the id of the photo that got deleted
                 properties:
                   Username:
-                    $ref: "#/components/schemas/Username"                    
-                  imageUrl:
-                    $ref: "#/components/schemas/imageUrl"
+                    $ref: "#/components/schemas/Username"
+                  imageId:
+                    $ref: "#/components/schemas/imageId"
         '404':
           description: Photo not found
 
-  /images/{imageurl}/like:
+  /images/{imageid}/like:
     parameters:
-    - name: imageurl
+    - name: imageid
       in: path
       required: true
       description: this is the id of the image
       schema:
-        $ref: "#/components/schemas/imageUrl"
+        $ref: "#/components/schemas/imageId"
     put:
       tags: ['image']
       summary: Like Image
@@ -383,7 +378,7 @@ paths:
         Like a specific image
       operationId: likePhoto
       requestBody:
-        description: url of the photo to like
+        description: id of the photo to like
         required: true
         content:
           application/json:
@@ -392,8 +387,8 @@ paths:
               description: |
                 the id of the photo to like
               properties:
-                imageUrl:
-                  $ref: "#/components/schemas/imageUrl"
+                imageId:
+                  $ref: "#/components/schemas/imageId"
       responses:
         '200':
           description: Photo liked successfully
@@ -406,8 +401,8 @@ paths:
                 properties:
                   Username:
                     $ref: "#/components/schemas/Username"                    
-                  imageUrl:
-                    $ref: "#/components/schemas/imageUrl"
+                  imageId:
+                    $ref: "#/components/schemas/imageId"
         '404':
           description: Photo not found
     delete:
@@ -425,8 +420,8 @@ paths:
               type: object
               description: the id of the photo that's getting unliked
               properties:
-                 imageUrl:
-                  $ref: "#/components/schemas/imageUrl"
+                imageId:
+                  $ref: "#/components/schemas/imageId"
       responses:
         '200':
           description: Photo unliked successfully
@@ -438,20 +433,20 @@ paths:
                   the id of the user that unlikes and the id of the photo being unliked
                 properties:
                   Username:
-                    $ref: "#/components/schemas/Username"                    
-                  imageUrl:
-                    $ref: "#/components/schemas/imageUrl"
+                    $ref: "#/components/schemas/Username"
+                  imageId:
+                    $ref: "#/components/schemas/imageId"
         '404':
           description: Photo not found
 
-  /images/{imageurl}/comment:
+  /images/{imageid}/comment:
     parameters:
-    - name: imageurl
+    - name: imageid
       in: path
       required: true
       description: this is the id of the image
       schema:
-        $ref: "#/components/schemas/imageUrl"
+        $ref: "#/components/schemas/imageId"
     put:
       tags: ['image']
       summary: Comment on Photo
@@ -469,7 +464,7 @@ paths:
                 the id of the photo that is getting a comment and the comment
               properties:
                 photoId:
-                  $ref: "#/components/schemas/imageUrl"
+                  $ref: "#/components/schemas/imageId"
                 comment:
                   description: |
                     a comment that is written under an image
@@ -490,8 +485,8 @@ paths:
                 properties:
                   Username:
                     $ref: "#/components/schemas/Username"                    
-                  imageUrl:
-                    $ref: "#/components/schemas/imageUrl"
+                  imageId:
+                    $ref: "#/components/schemas/imageId"
         '404':
           description: Photo not found
     delete:
@@ -510,8 +505,8 @@ paths:
               description: |
                 the id of the photo getting and uncomment and the comment that needs to be removed
               properties:
-                imageUrl:
-                  $ref: "#/components/schemas/imageUrl"
+                imageId:
+                  $ref: "#/components/schemas/imageId"
                 comment:
                   description: |
                     a comment to be removed from under an image
@@ -533,8 +528,8 @@ paths:
                 properties:
                   Username:
                     $ref: "#/components/schemas/Username"                    
-                  imageUrl:
-                    $ref: "#/components/schemas/imageUrl"
+                  imageId:
+                    $ref: "#/components/schemas/imageId"
         '404':
           description: Photo or Comment not found
 
@@ -554,6 +549,8 @@ components:
         Photo wtih information related to the photo.
       type: object
       properties:
+        imageId:
+          $ref: "#/components/schemas/imageId"
         imageUrl:
           $ref: "#/components/schemas/imageUrl"
         Username:
@@ -586,6 +583,11 @@ components:
           maxLength: 140
           pattern: '^.*?$'
           example: https://static.semrush.com/blog/uploads/media/c5/d8/c5d899c34268c5bde3f08dfc7f98eb0d/original.png
+
+    imageId:
+          description: |
+            unique identifier of an image
+          type: integer
 
   securitySchemes:
     UserAuth:

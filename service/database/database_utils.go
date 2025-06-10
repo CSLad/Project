@@ -14,6 +14,7 @@ type User struct {
 }
 
 type Image struct {
+	ID        int64     `json:"id"`
 	ImageURL  string    `json:"imageurl"`
 	Username  string    `json:"username"`
 	Likes     int       `json:"likes"`
@@ -265,7 +266,7 @@ func (db *appdbimpl) GetStream(username string) ([]Image, error) {
 	}
 
 	query := fmt.Sprintf(
-		"SELECT imageurl, username, likes, comments, created_at FROM Images WHERE username IN (%s) ORDER BY created_at DESC LIMIT 10",
+		"SELECT id, imageurl, username, likes, comments, created_at FROM Images WHERE username IN (%s) ORDER BY created_at DESC LIMIT 10",
 		strings.Join(placeholders, ","),
 	)
 
@@ -278,7 +279,7 @@ func (db *appdbimpl) GetStream(username string) ([]Image, error) {
 	var images []Image
 	for rows.Next() {
 		var image Image
-		err := rows.Scan(&image.ImageURL, &image.Username, &image.Likes, &image.Comments, &image.CreatedAt)
+		err := rows.Scan(&image.ID, &image.ImageURL, &image.Username, &image.Likes, &image.Comments, &image.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -291,48 +292,52 @@ func (db *appdbimpl) GetStream(username string) ([]Image, error) {
 	return images, nil
 }
 
-func (db *appdbimpl) InsertImage(imageURL, username string) error {
+func (db *appdbimpl) InsertImage(imageURL, username string) (int64, error) {
 	// Get the current time
 	currentTime := time.Now()
 
 	// Execute the INSERT query to insert the image URL into the Images table
-	_, err := db.c.Exec("INSERT INTO Images (imageurl, username, likes, comments, created_at) VALUES (?, ?, ?, ?, ?)", imageURL, username, 0, "", currentTime)
+	res, err := db.c.Exec("INSERT INTO Images (imageurl, username, likes, comments, created_at) VALUES (?, ?, ?, ?, ?)", imageURL, username, 0, "", currentTime)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }
 
-func (db *appdbimpl) RemoveImage(imageURL string) error {
+func (db *appdbimpl) RemoveImage(imageID int64) error {
 	// Execute the DELETE query to remove the entry associated with the given image URL
-	_, err := db.c.Exec("DELETE FROM Images WHERE imageurl = ?", imageURL)
+	_, err := db.c.Exec("DELETE FROM Images WHERE id = ?", imageID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (db *appdbimpl) AddLike(imageURL string) error {
-	_, err := db.c.Exec("UPDATE Images SET likes = likes + 1 WHERE imageurl = ?", imageURL)
+func (db *appdbimpl) AddLike(imageID int64) error {
+	_, err := db.c.Exec("UPDATE Images SET likes = likes + 1 WHERE id = ?", imageID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (db *appdbimpl) RemoveLike(imageURL string) error {
-	// Execute the UPDATE query to decrement the number of likes for the corresponding image URL
-	_, err := db.c.Exec("UPDATE Images SET likes = likes - 1 WHERE imageurl = ?", imageURL)
+func (db *appdbimpl) RemoveLike(imageID int64) error {
+	// Execute the UPDATE query to decrement the number of likes for the corresponding image
+	_, err := db.c.Exec("UPDATE Images SET likes = likes - 1 WHERE id = ?", imageID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (db *appdbimpl) AddComment(imageURL, comment string) error {
+func (db *appdbimpl) AddComment(imageID int64, comment string) error {
 	// Retrieve the current comments for the image
 	var currentComments string
-	err := db.c.QueryRow("SELECT comments FROM Images WHERE imageurl = ?", imageURL).Scan(&currentComments)
+	err := db.c.QueryRow("SELECT comments FROM Images WHERE id = ?", imageID).Scan(&currentComments)
 	if err != nil {
 		return err
 	}
@@ -341,7 +346,7 @@ func (db *appdbimpl) AddComment(imageURL, comment string) error {
 	newComments := currentComments + "~" + comment
 
 	// Update the comments for the image
-	_, err = db.c.Exec("UPDATE Images SET comments = ? WHERE imageurl = ?", newComments, imageURL)
+	_, err = db.c.Exec("UPDATE Images SET comments = ? WHERE id = ?", newComments, imageID)
 	if err != nil {
 		return err
 	}
@@ -349,10 +354,10 @@ func (db *appdbimpl) AddComment(imageURL, comment string) error {
 	return nil
 }
 
-func (db *appdbimpl) RemoveComment(imageURL, commentToRemove string) error {
+func (db *appdbimpl) RemoveComment(imageID int64, commentToRemove string) error {
 	// Retrieve the current comments for the image
 	var currentComments string
-	err := db.c.QueryRow("SELECT comments FROM Images WHERE imageurl = ?", imageURL).Scan(&currentComments)
+	err := db.c.QueryRow("SELECT comments FROM Images WHERE id = ?", imageID).Scan(&currentComments)
 	if err != nil {
 		return err
 	}
@@ -372,7 +377,7 @@ func (db *appdbimpl) RemoveComment(imageURL, commentToRemove string) error {
 	newComments := strings.Join(updatedComments, "~")
 
 	// Update the comments for the image
-	_, err = db.c.Exec("UPDATE Images SET comments = ? WHERE imageurl = ?", newComments, imageURL)
+	_, err = db.c.Exec("UPDATE Images SET comments = ? WHERE id = ?", newComments, imageID)
 	if err != nil {
 		return err
 	}
@@ -380,10 +385,10 @@ func (db *appdbimpl) RemoveComment(imageURL, commentToRemove string) error {
 	return nil
 }
 
-func (db *appdbimpl) GetImage(imageURL string) (Image, error) {
-	// Query the Images table for the image with the given imageURL
+func (db *appdbimpl) GetImage(imageID int64) (Image, error) {
+	// Query the Images table for the image with the given ID
 	var image Image
-	err := db.c.QueryRow("SELECT imageurl, username, likes, comments, created_at FROM Images WHERE imageurl = ?", imageURL).Scan(&image.ImageURL, &image.Username, &image.Likes, &image.Comments, &image.CreatedAt)
+	err := db.c.QueryRow("SELECT id, imageurl, username, likes, comments, created_at FROM Images WHERE id = ?", imageID).Scan(&image.ID, &image.ImageURL, &image.Username, &image.Likes, &image.Comments, &image.CreatedAt)
 	if err != nil {
 		return Image{}, err
 	}

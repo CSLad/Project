@@ -49,13 +49,13 @@ type AppDatabase interface {
 	BanUsername(username, banusername string) error
 	UnbanUsername(username, unbanusername string) error
 	GetStream(username string) ([]Image, error)
-	InsertImage(imageURL, username string) error
-	RemoveImage(imageURL string) error
-	AddLike(imageURL string) error
-	RemoveLike(imageURL string) error
-	AddComment(imageURL, comment string) error
-	RemoveComment(imageURL, commentToRemove string) error
-	GetImage(imageURL string) (Image, error)
+	InsertImage(imageURL, username string) (int64, error)
+	RemoveImage(imageID int64) error
+	AddLike(imageID int64) error
+	RemoveLike(imageID int64) error
+	AddComment(imageID int64, comment string) error
+	RemoveComment(imageID int64, commentToRemove string) error
+	GetImage(imageID int64) (Image, error)
 	Ping() error
 }
 
@@ -72,7 +72,6 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	logger := logrus.New()
 	logger.SetOutput(os.Stdout)
-
 
 	logger.Infof("Loading Table Users")
 
@@ -105,12 +104,13 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if errors.Is(errs, sql.ErrNoRows) {
 		logger.Infof("No TABLE Images, Initializing")
 		sqlStmt := `CREATE TABLE Images (
-						imageurl TEXT PRIMARY KEY,
-						username TEXT,
-						likes INTEGER,
-						comments TEXT,
-						created_at DATETIME
-					);`
+                                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                imageurl TEXT UNIQUE,
+                                                username TEXT,
+                                                likes INTEGER,
+                                                comments TEXT,
+                                                created_at DATETIME
+                                        );`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
@@ -119,7 +119,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	// logger.Infof("Inserting test images")
 	// 	_, err = db.Exec(`INSERT INTO Images (imageurl, username, likes, comments, created_at)
-	// 					  VALUES 
+	// 					  VALUES
 	// 					  (?, ?, ?, ?, datetime('now', '-1 hour')),
 	// 					  (?, ?, ?, ?, datetime('now', '-2 hour'))`,
 	// 		"https://i.guim.co.uk/img/media/c8b1d78883dfbe7cd3f112495941ebc0b25d2265/256_0_3840_2304/master/3840.jpg?width=1200&height=1200&quality=85&auto=format&fit=crop&s=3ac0dfad4c2edc23c843d59f1ec08cc8", "alice", 10, "YES",
