@@ -73,6 +73,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	logger := logrus.New()
 	logger.SetOutput(os.Stdout)
 
+
 	logger.Infof("Loading Table Users")
 
 	var tableName string
@@ -89,6 +90,13 @@ func New(db *sql.DB) (AppDatabase, error) {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
 		}
 	}
+
+	// logger.Infof("Inserting test user")
+	// _, err = db.Exec(`INSERT INTO Users (username, following, banned) VALUES (?, ?, ?)`,
+	// 	"testuser", "alice,bob", "")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error inserting test user: %w", err)
+	// }
 
 	logger.Infof("Loading Table Images")
 
@@ -108,6 +116,17 @@ func New(db *sql.DB) (AppDatabase, error) {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
 		}
 	}
+
+	// logger.Infof("Inserting test images")
+	// 	_, err = db.Exec(`INSERT INTO Images (imageurl, username, likes, comments, created_at)
+	// 					  VALUES 
+	// 					  (?, ?, ?, ?, datetime('now', '-1 hour')),
+	// 					  (?, ?, ?, ?, datetime('now', '-2 hour'))`,
+	// 		"https://i.guim.co.uk/img/media/c8b1d78883dfbe7cd3f112495941ebc0b25d2265/256_0_3840_2304/master/3840.jpg?width=1200&height=1200&quality=85&auto=format&fit=crop&s=3ac0dfad4c2edc23c843d59f1ec08cc8", "alice", 10, "YES",
+	// 		"https://img.freepik.com/foto-gratuito/rappresentazione-3d-del-ragazzo-del-fumetto_23-2150797600.jpg?semt=ais_hybrid&w=740", "bob", 5, "LMAO")
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("error inserting test images: %w", err)
+	// 	}
 
 	return &appdbimpl{
 		c: db,
