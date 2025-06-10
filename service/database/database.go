@@ -104,13 +104,13 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if errors.Is(errs, sql.ErrNoRows) {
 		logger.Infof("No TABLE Images, Initializing")
 		sqlStmt := `CREATE TABLE Images (
-                                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                                imageurl TEXT UNIQUE,
-                                                username TEXT,
-                                                likes INTEGER,
-                                                comments TEXT,
-                                                created_at DATETIME
-                                        );`
+						id INTEGER PRIMARY KEY AUTOINCREMENT,
+						imageurl TEXT UNIQUE,
+						username TEXT,
+						likes INTEGER,
+						comments TEXT,
+						created_at DATETIME
+				);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
@@ -118,15 +118,24 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	// logger.Infof("Inserting test images")
-	// 	_, err = db.Exec(`INSERT INTO Images (imageurl, username, likes, comments, created_at)
-	// 					  VALUES
-	// 					  (?, ?, ?, ?, datetime('now', '-1 hour')),
-	// 					  (?, ?, ?, ?, datetime('now', '-2 hour'))`,
-	// 		"https://i.guim.co.uk/img/media/c8b1d78883dfbe7cd3f112495941ebc0b25d2265/256_0_3840_2304/master/3840.jpg?width=1200&height=1200&quality=85&auto=format&fit=crop&s=3ac0dfad4c2edc23c843d59f1ec08cc8", "alice", 10, "YES",
-	// 		"https://img.freepik.com/foto-gratuito/rappresentazione-3d-del-ragazzo-del-fumetto_23-2150797600.jpg?semt=ais_hybrid&w=740", "bob", 5, "LMAO")
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("error inserting test images: %w", err)
-	// 	}
+	// _, err = db.Exec(`INSERT INTO Images (imageurl, username, likes, comments, created_at)
+	// 				VALUES
+	// 				(?, ?, ?, ?, datetime('now', '-1 hour')),
+	// 				(?, ?, ?, ?, datetime('now', '-2 hour'))`,
+	// 	"https://i.guim.co.uk/img/media/c8b1d78883dfbe7cd3f112495941ebc0b25d2265/256_0_3840_2304/master/3840.jpg?width=1200&height=1200&quality=85&auto=format&fit=crop&s=3ac0dfad4c2edc23c843d59f1ec08cc8", "alice", 10, "YES",
+	// 	"https://img.freepik.com/foto-gratuito/rappresentazione-3d-del-ragazzo-del-fumetto_23-2150797600.jpg?semt=ais_hybrid&w=740", "bob", 5, "LMAO")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error inserting test images: %w", err)
+	// }
+
+
+
+	// if _, err := db.Exec(`DROP TABLE IF EXISTS Images`); err != nil {
+    //     return nil, fmt.Errorf("dropping Images table: %w", err)
+    // }
+    // if _, err := db.Exec(`DROP TABLE IF EXISTS Users`); err != nil {
+    //     return nil, fmt.Errorf("dropping Users table: %w", err)
+    // }
 
 	return &appdbimpl{
 		c: db,
