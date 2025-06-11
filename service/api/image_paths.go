@@ -162,23 +162,3 @@ func (rt *_router) getImageInfo(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 }
 
-func (rt *_router) userPhotos(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("Content-Type", "application/json")
-
-	username := ps.ByName("username")
-	if username == "" {
-		http.Error(w, "Missing username in path", http.StatusBadRequest)
-		return
-	}
-
-	images, err := rt.db.GetUserPhotos(username)
-	if err != nil {
-		http.Error(w, "Failed to retrieve images", http.StatusInternalServerError)
-		return
-	}
-
-	if err := json.NewEncoder(w).Encode(images); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		return
-	}
-}

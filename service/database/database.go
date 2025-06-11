@@ -48,6 +48,8 @@ type AppDatabase interface {
 	UnfollowUsername(username, unfollowingusername string) error
 	BanUsername(username, banusername string) error
 	UnbanUsername(username, unbanusername string) error
+	GetUserPhotos(username string) ([]Image, error)
+	
 	GetStream(username string) ([]Image, error)
 	InsertImage(imageURL, username string) (int64, error)
 	RemoveImage(imageID int64) error
@@ -56,7 +58,7 @@ type AppDatabase interface {
 	AddComment(imageID int64, comment string) error
 	RemoveComment(imageID int64, commentToRemove string) error
 	GetImage(imageID int64) (Image, error)
-	GetUserPhotos(username string) ([]Image, error)
+	
 	Ping() error
 }
 

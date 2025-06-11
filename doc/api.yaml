@@ -296,6 +296,38 @@ paths:
         '404':
           description: User not found
 
+  /users/{username}/photos:
+    parameters:
+    - name: username
+      in: path
+      required: true
+      description: this is the username
+      schema:
+        $ref: "#/components/schemas/Username"
+    get:
+      tags: ['user']
+      summary: Get User Photos
+      description: |
+        Get the photos posted by a user
+      operationId: getMyPhotos
+      responses:
+        '200':
+          description: User Photos retrieved successfully
+          content:
+            application/json:
+              schema:
+                description: List of photos
+                type: object
+                properties:
+                  images:
+                    type: array
+                    description: "list of images"
+                    items:
+                      $ref: "#/components/schemas/imageUrl"
+                    minItems: 0
+        '404':
+          description: User not found
+
   /images:
     post:
       tags: ['image']

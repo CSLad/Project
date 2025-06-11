@@ -17,6 +17,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/users/:username/ban", rt.wrap(rt.unbanUser))
 	rt.router.GET("/users/:username/stream", rt.wrap(rt.getMyStream))
 	rt.router.GET("/users/:username", rt.wrap(rt.getUserProfile))
+	rt.router.GET("/users/:username/photos", rt.wrap(rt.userPhotos))
 
 	rt.router.POST("/images", rt.wrap(rt.uploadImage))
 	rt.router.DELETE("/images/:imageid", rt.wrap(rt.deletePhoto))
@@ -24,7 +25,6 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.PUT("/images/:imageid/comment", rt.wrap(rt.addComment))
 	rt.router.DELETE("/images/:imageid/comment", rt.wrap(rt.removeComment))
 	rt.router.GET("/images/:imageid", rt.wrap(rt.getImageInfo))
-	rt.router.GET("/images/:username", rt.wrap(rt.userPhotos))
 
 	rt.router.GET("/liveness", rt.liveness)
 
