@@ -40,11 +40,11 @@ const route = useRoute()
           </h6>
           <ul class="nav flex-column">
             <li class="nav-item">
-              <RouterLink to="/home" class="nav-link">
+              <RouterLink to="/profile" class="nav-link">
                 <svg class="feather">
                   <use href="/feather-sprite-v4.29.0.svg#home" />
                 </svg>
-                Home
+                Profile
               </RouterLink>
             </li>
             <li class="nav-item">

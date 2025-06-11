@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div v-if="showFollowingModal" class="modal-overlay">
+    <div v-if="showFollowingModal" class="modal-overlay" @click.self="showFollowingModal = false">
       <div class="modal">
         <h3>Following</h3>
         <ul>
@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <div v-if="showBannedModal" class="modal-overlay">
+    <div v-if="showBannedModal" class="modal-overlay" @click.self="showBannedModal = false">
       <div class="modal">
         <h3>Banned</h3>
         <ul>
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <div v-if="showUploadModal" class="modal-overlay">
+    <div v-if="showUploadModal" class="modal-overlay" @click.self="showUploadModal = false">
       <div class="modal">
         <h3>Upload Image</h3>
         <input v-model="newImageUrl" placeholder="Image URL" />
@@ -179,7 +179,7 @@ onMounted(() => {
 .stats span {
   margin-right: 1rem;
   cursor: pointer;
-  color: blue;
+  color: white;
 }
 
 .image-grid {
@@ -241,5 +241,49 @@ onMounted(() => {
 
 .modal button {
   padding: 0.3rem 0.6rem;
+}
+</style>
+
+
+<style>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 300px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.change-btn,
+.stats span {
+  cursor: pointer;
+  margin: 5px;
+  padding: 8px 12px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.change-btn:hover,
+.stats span:hover {
+  background-color: #707070;
 }
 </style>
