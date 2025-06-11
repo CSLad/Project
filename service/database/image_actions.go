@@ -173,3 +173,24 @@ func (db *appdbimpl) GetImage(imageID int64) (Image, error) {
 	}
 	return image, nil
 }
+
+func (db *appdbimpl) GetUserPhotos(username string) ([]Image, error) {
+	rows, err := db.c.Query("SELECT id, imageurl, username, likes, comments, created_at FROM Images WHERE username = ? ORDER BY created_at DESC", username)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var images []Image
+	for rows.Next() {
+		var img Image
+		if err := rows.Scan(&img.ID, &img.ImageURL, &img.Username, &img.Likes, &img.Comments, &img.CreatedAt); err != nil {
+			return nil, err
+		}
+		images = append(images, img)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return images, nil
+}
