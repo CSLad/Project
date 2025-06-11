@@ -178,13 +178,13 @@ onMounted(() => {
 
 .image-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 10px;
 }
 
 .upload-tile, .image-item img {
   width: 100%;
-  height: 150px;
+  height: 300px;
   object-fit: cover;
 }
 

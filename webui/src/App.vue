@@ -56,11 +56,11 @@ const route = useRoute()
               </RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink to="/link2" class="nav-link">
+              <RouterLink to="/home" class="nav-link">
                 <svg class="feather">
                   <use href="/feather-sprite-v4.29.0.svg#key" />
                 </svg>
-                Upload
+                Stream
               </RouterLink>
             </li>
           </ul>

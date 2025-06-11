@@ -10,7 +10,7 @@
           {{ isBanned ? 'Unban' : 'Ban' }}
         </button>
       </div>
-      <div class="stats">
+      <div class="userStats">
         <span>Following ({{ followingList.length }})</span>
         <span>Banned ({{ bannedList.length }})</span>
       </div>
@@ -160,13 +160,24 @@ watch(() => route.params.username, (newVal) => {
 
 .image-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 10px;
 }
 
 .image-item img {
   width: 100%;
-  height: 150px;
+  height: 300px;
   object-fit: cover;
 }
+
+.userStats span {
+  margin: 5px;
+  padding: 8px 12px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
 </style>
