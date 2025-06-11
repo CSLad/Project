@@ -17,7 +17,7 @@
     </div>
 
     <div v-if="showFollowingModal" class="modal-overlay" @click.self="showFollowingModal = false">
-      <div class="modal">
+      <div class="popup-modal">
         <h3>Following</h3>
         <ul>
           <li v-for="user in followingList" :key="user">
@@ -32,7 +32,7 @@
     </div>
 
     <div v-if="showBannedModal" class="modal-overlay" @click.self="showBannedModal = false">
-      <div class="modal">
+      <div class="popup-modal">
         <h3>Banned</h3>
         <ul>
           <li v-for="user in bannedList" :key="user">
@@ -198,7 +198,7 @@ onMounted(() => {
 }
 
 
-.modal {
+.popup-modal {
   background: white;
   padding: 1rem;
   border-radius: 4px;
@@ -206,23 +206,23 @@ onMounted(() => {
   width: 90%;
 }
 
-.modal ul {
+.popup-modal ul {
   list-style: none;
   padding: 0;
 }
 
-.modal li {
+.popup-modal li {
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.5rem;
 }
 
-.modal button.active {
+.popup-modal button.active {
   background: #4caf50;
   color: white;
 }
 
-.modal button {
+.popup-modal button {
   padding: 0.3rem 0.6rem;
 }
 </style>
@@ -242,7 +242,7 @@ onMounted(() => {
   z-index: 1000;
 }
 
-.modal {
+.popup-modal {
   background: white;
   padding: 20px;
   border-radius: 10px;
