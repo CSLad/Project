@@ -10,7 +10,7 @@
     </div>
 
     <div class="image-grid">
-      <div class="upload-tile" @click="showUploadModal = true">⬆️</div>
+      <div class="upload-tile" @click="uploadImage">⬆️</div>
       <div v-for="img in images" :key="img.id" class="image-item">
         <img :src="img.imageurl" alt="photo" />
       </div>
@@ -45,19 +45,13 @@
         <button @click="showBannedModal = false">Close</button>
       </div>
     </div>
-
-    <div v-if="showUploadModal" class="modal-overlay" @click.self="showUploadModal = false">
-      <div class="modal">
-        <h3>Upload Image</h3>
-        <input v-model="newImageUrl" placeholder="Image URL" />
-        <button @click="uploadImage">Upload</button>
-        <button @click="showUploadModal = false">Cancel</button>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
+const showFollowingModal = ref(false);
+const showBannedModal = ref(false);
+
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '../services/axios.js'
@@ -67,16 +61,16 @@ const username = ref(localStorage.getItem('username') || '')
 const followingList = ref([])
 const bannedList = ref([])
 const images = ref([])
-const showFollowingModal = ref(false)
-const showBannedModal = ref(false)
-const showUploadModal = ref(false)
-const newImageUrl = ref('')
+
 
 const fetchProfile = async () => {
   try {
+    console.log("fetching profile")
     const res = await axios.get(`/users/${username.value}`)
-    followingList.value = res.data.following ? res.data.following.split(',').filter(v => v) : []
-    bannedList.value = res.data.banned ? res.data.banned.split(',').filter(v => v) : []
+    //console.log(res.data.Following)
+    followingList.value = res.data.Following ? res.data.Following.split(',').filter(v => v) : []
+    //console.log(followingList)
+    bannedList.value = res.data.Banned ? res.data.Banned.split(',').filter(v => v) : []
   } catch (err) {
     console.error('Failed to load profile', err)
   }
@@ -84,7 +78,8 @@ const fetchProfile = async () => {
 
 const fetchImages = async () => {
   try {
-    const res = await axios.get(`/images/${username.value}`)
+    console.log("fetching images")
+    const res = await axios.get(`/users/${username.value}/photos`)
     images.value = res.data || []
   } catch (err) {
     console.error('Failed to load images', err)
@@ -102,6 +97,17 @@ const changeUsername = async () => {
     await fetchImages()
   } catch (err) {
     console.error('Failed to change username', err)
+  }
+}
+
+const uploadImage = async () => {
+  const newUrl = prompt('Image url:')
+  if (!newUrl) return
+  try {
+    await axios.post('/images', { username: username.value, imageurl: newUrl })
+    await fetchImages()
+  } catch (err) {
+    console.error('Failed to upload image', err)
   }
 }
 
@@ -133,18 +139,6 @@ const toggleBan = async (user) => {
     }
   } catch (err) {
     console.error('Failed to toggle ban', err)
-  }
-}
-
-const uploadImage = async () => {
-  if (!newImageUrl.value) return
-  try {
-    await axios.post('/images', { username: username.value, imageurl: newImageUrl.value })
-    newImageUrl.value = ''
-    showUploadModal.value = false
-    await fetchImages()
-  } catch (err) {
-    console.error('Failed to upload image', err)
   }
 }
 
@@ -203,17 +197,6 @@ onMounted(() => {
   font-size: 2rem;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .modal {
   background: white;
