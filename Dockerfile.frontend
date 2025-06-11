@@ -1,0 +1,8 @@
+FROM node:lts as frontend_compiler
+WORKDIR /src/
+COPY ./webui ./webui
+WORKDIR /src/webui/
+RUN npm run build-prod
+
+FROM nginx:stable
+COPY --from=frontend_compiler /src/webui/dist /usr/share/nginx/html
