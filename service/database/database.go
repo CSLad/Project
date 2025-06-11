@@ -56,6 +56,7 @@ type AppDatabase interface {
 	AddComment(imageID int64, comment string) error
 	RemoveComment(imageID int64, commentToRemove string) error
 	GetImage(imageID int64) (Image, error)
+	GetUserPhotos(username string) ([]Image, error)
 	Ping() error
 }
 
@@ -128,14 +129,12 @@ func New(db *sql.DB) (AppDatabase, error) {
 	// 	return nil, fmt.Errorf("error inserting test images: %w", err)
 	// }
 
-
-
 	// if _, err := db.Exec(`DROP TABLE IF EXISTS Images`); err != nil {
-    //     return nil, fmt.Errorf("dropping Images table: %w", err)
-    // }
-    // if _, err := db.Exec(`DROP TABLE IF EXISTS Users`); err != nil {
-    //     return nil, fmt.Errorf("dropping Users table: %w", err)
-    // }
+	//     return nil, fmt.Errorf("dropping Images table: %w", err)
+	// }
+	// if _, err := db.Exec(`DROP TABLE IF EXISTS Users`); err != nil {
+	//     return nil, fmt.Errorf("dropping Users table: %w", err)
+	// }
 
 	return &appdbimpl{
 		c: db,

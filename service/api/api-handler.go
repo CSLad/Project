@@ -10,7 +10,7 @@ func (rt *_router) Handler() http.Handler {
 	//rt.router.DELETE("/images/:imageurl/like", rt.wrap(rt.unlikePhoto))
 
 	rt.router.POST("/session", rt.wrap(rt.doLogin)) //donezo
-	rt.router.PUT("/users/:username", rt.wrap(rt.setMyUserName)) 
+	rt.router.PUT("/users/:username", rt.wrap(rt.setMyUserName))
 	rt.router.PUT("/users/:username/follow", rt.wrap(rt.followUser))
 	rt.router.DELETE("/users/:username/follow", rt.wrap(rt.unfollowUser))
 	rt.router.PUT("/users/:username/ban", rt.wrap(rt.banUser))
@@ -24,6 +24,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.PUT("/images/:imageid/comment", rt.wrap(rt.addComment))
 	rt.router.DELETE("/images/:imageid/comment", rt.wrap(rt.removeComment))
 	rt.router.GET("/images/:imageid", rt.wrap(rt.getImageInfo))
+	rt.router.GET("/images/:username", rt.wrap(rt.userPhotos))
 
 	rt.router.GET("/liveness", rt.liveness)
 
