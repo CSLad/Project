@@ -144,24 +144,27 @@ paths:
                     $ref: "#/components/schemas/Username"
         '404':
           description: User not found
+
+  /users/{username}/follow/{followedUsername}:
+    parameters:
+    - name: username
+      in: path
+      required: true
+      description: this is the username
+      schema:
+        $ref: "#/components/schemas/Username"
+    - name: followedUsername
+      in: path
+      required: true
+      description: username to unfollow
+      schema:
+        $ref: "#/components/schemas/Username"
     delete:
       tags: ['follow']
       summary: Unfollow User
       description: |
         Unfollow the desired user
       operationId: unfollowUser
-      requestBody:
-        description: ID of the user to unfollow
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              description: |
-                The username of the user whom to unfollow
-              properties:  
-                Username:
-                  $ref: "#/components/schemas/Username"
       responses:
         '200':
           description: User unfollowed successfully
@@ -222,24 +225,27 @@ paths:
                     $ref: "#/components/schemas/Username"
         '404':
           description: User not found
+
+  /users/{username}/ban/{bannedUsername}:
+    parameters:
+    - name: username
+      in: path
+      required: true
+      description: this is the username
+      schema:
+        $ref: "#/components/schemas/Username"
+    - name: bannedUsername
+      in: path
+      required: true
+      description: username of the user to unban
+      schema:
+        $ref: "#/components/schemas/Username"
     delete:
-      tags: ["user"]
+      tags: ['user']
       summary: Unban User
       description: |
         Unban a user to view his images and allow him to view the users images
       operationId: unbanUser
-      requestBody:
-        description: username of the user to unban
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              description: |
-                the username of the user to unban
-              properties:
-                Username:
-                  $ref: "#/components/schemas/Username"
       responses:
         '200':
           description: User unbanned successfully
@@ -278,6 +284,8 @@ paths:
             application/json:
               schema:
                 type: array
+                minItems: 0
+                maxItems: 100
                 items:
                   $ref: "#/components/schemas/Photo"
         '404':
@@ -304,6 +312,8 @@ paths:
             application/json:
               schema:
                 type: array
+                minItems: 0
+                maxItems: 100
                 items:
                   $ref: "#/components/schemas/Photo"
         '404':
@@ -315,7 +325,7 @@ paths:
       summary: Upload Photo
       description: |
         Upload a new photo by providing its URL
-      operationId: uploadImage
+      operationId: uploadPhoto
       requestBody:
         required: true
         content:
@@ -392,7 +402,7 @@ paths:
         '404':
           description: Photo not found
 
-  /images/{imageid}/like:
+  /images/{imageid}/likes:
     parameters:
     - name: imageid
       in: path
@@ -400,7 +410,7 @@ paths:
       description: this is the id of the image
       schema:
         $ref: "#/components/schemas/imageId"
-    put:
+    post:
       tags: ['image']
       summary: Like Image
       description: |
@@ -409,10 +419,30 @@ paths:
       responses:
         '200':
           description: Photo liked successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Photo"
         '404':
           description: Photo not found
 
-  /images/{imageid}/comment:
+    delete:
+      tags: ['image']
+      summary: Remove Like
+      description: |
+        Remove a like from the image
+      operationId: unlikePhoto
+      responses:
+        '200':
+          description: Like removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Photo"
+        '404':
+          description: Photo not found
+
+  /images/{imageid}/comments:
     parameters:
     - name: imageid
       in: path
@@ -420,12 +450,12 @@ paths:
       description: this is the id of the image
       schema:
         $ref: "#/components/schemas/imageId"
-    put:
+    post:
       tags: ['image']
       summary: Comment on Photo
       description: |
         Add a comment under an image
-      operationId: addComment
+      operationId: commentPhoto
       requestBody:
         required: true
         content:
@@ -444,33 +474,48 @@ paths:
       responses:
         '200':
           description: Comment added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
         '404':
           description: Photo not found
+
+  /images/{imageid}/comments/{commentid}:
+    parameters:
+    - name: imageid
+      in: path
+      required: true
+      description: this is the id of the image
+      schema:
+        $ref: "#/components/schemas/imageId"
+    - name: commentid
+      in: path
+      required: true
+      description: this is the id of the comment
+      schema:
+        $ref: "#/components/schemas/commentId"
     delete:
       tags: ['image']
       summary: Remove Comment from Photo
       description: |
         Remove a comment from an image
-      operationId: removeComment
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                comment:
-                  description: |
-                    Comment to remove
-                  type: string
-                  minLength: 1
-                  maxLength: 140
-                  pattern: '^.*?$'
-                  example: good
-
+      operationId: uncommentPhoto
       responses:
         '200':
           description: Comment removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
         '404':
           description: Photo or Comment not found
 
@@ -491,10 +536,13 @@ components:
       type: object
       properties:
         imageId:
+          description: Identifier of the photo
           $ref: "#/components/schemas/imageId"
         imageurl:
+          description: URL of the uploaded image
           $ref: "#/components/schemas/imageUrl"
         username:
+          description: Owner of the photo
           $ref: "#/components/schemas/Username"
         date:
           description: |
@@ -528,6 +576,11 @@ components:
     imageId:
           description: |
             unique identifier of an image
+          type: integer
+
+    commentId:
+          description: |
+            unique identifier of a comment
           type: integer
 
   securitySchemes:
